@@ -11,7 +11,7 @@ var argv = require('yargs')
     .describe('c', 'collections to clean')
     .demand(['u', 'c'])
     .default('d', 7)
-    .example('$0 -u mongodb://localhost:27017/idg -d 3 -c tasks', 'clean all 3-days old records from all tasks and tasks_ops')
+    .example('$0 -u mongodb://localhost:27017/idg -d 3 -c tasks', 'clean all 3-days old records from all tasks and tasks_ops and ops_tasks')
     .argv;
 
 var url = argv.u;

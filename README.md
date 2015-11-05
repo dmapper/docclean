@@ -23,8 +23,8 @@ Options:
 Examples:
   docclean -u mongodb://localhost:27017/idg -d 3 -c tasks
      
-  # clean all 3-day old records from all tasks collections and corresponding ops
-  # docs 
+  # clean all 3-day old records from all task's collections including 
+  # corresponding ops docs (sharedb and livedb) 
 ```          
                
 ### as a package

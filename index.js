@@ -20,10 +20,12 @@ module.exports = function(url, date, collections, callback) {
   });
 
   function cleanCollection(db, snapshotsCollectionName, done){
-    var oplogsCollectionName = snapshotsCollectionName + '_ops';
+    var oplogsCollectionName1 = snapshotsCollectionName + '_ops';
+    var oplogsCollectionName2 =  'ops_' + snapshotsCollectionName;
 
     var snapshotsCollection = db.collection(snapshotsCollectionName);
-    var oplogsCollection = db.collection(oplogsCollectionName);
+    var oplogsCollection1 = db.collection(oplogsCollectionName1);
+    var oplogsCollection2 = db.collection(oplogsCollectionName2);
 
     snapshotsCollection.find({'_m.ctime': { $lt: date }}).toArray(function (err, snapshots) {
       if (err) throw err;
@@ -39,13 +41,18 @@ module.exports = function(url, date, collections, callback) {
           cb()
         });
       }, function(cb){
-        oplogsCollection.remove({name: {$in: docIds}}, function(err, res){
+        oplogsCollection1.remove({name: {$in: docIds}}, function(err, res){
+          counter += res.result.n;
+          cb()
+        });
+      }, function(cb){
+        oplogsCollection2.remove({d: {$in: docIds}}, function(err, res){
           counter += res.result.n;
           cb()
         });
       }], function(){
         if (!callback) console.log(snapshotsCollectionName, counter);
-        resultes[oplogsCollectionName] = counter;
+        resultes[snapshotsCollectionName] = counter;
         done();
       });
 
