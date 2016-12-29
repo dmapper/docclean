@@ -22,10 +22,12 @@ module.exports = function(url, date, collections, callback) {
   function cleanCollection(db, snapshotsCollectionName, done){
     var oplogsCollectionName1 = snapshotsCollectionName + '_ops';
     var oplogsCollectionName2 =  'ops_' + snapshotsCollectionName;
+    var oplogsCollectionName3 =  'o_' + snapshotsCollectionName;
 
     var snapshotsCollection = db.collection(snapshotsCollectionName);
     var oplogsCollection1 = db.collection(oplogsCollectionName1);
     var oplogsCollection2 = db.collection(oplogsCollectionName2);
+    var oplogsCollection3 = db.collection(oplogsCollectionName3);
 
     var counter = 0;
     async.forever(function(next){
@@ -52,6 +54,11 @@ module.exports = function(url, date, collections, callback) {
           });
         }, function(cb){
           oplogsCollection2.remove({d: {$in: docIds}}, function(err, res){
+            counter += res.result.n;
+            cb()
+          });
+        }, function(cb){
+          oplogsCollection3.remove({d: {$in: docIds}}, function(err, res){
             counter += res.result.n;
             cb()
           });
