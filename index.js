@@ -44,21 +44,39 @@ module.exports = function(url, date, collections, callback) {
 
         async.parallel([function(cb){
           snapshotsCollection.remove({_id: {$in: docIds}}, function(err, res){
+            if (err) {
+              console.log('Snap - error', err);
+              return cb()
+            }
             counter += res.result.n;
             cb()
           });
         }, function(cb){
           oplogsCollection1.remove({name: {$in: docIds}}, function(err, res){
+            if (err) {
+              console.log('Ops1 - error', err);
+              return cb()
+            }
             counter += res.result.n;
             cb()
           });
         }, function(cb){
           oplogsCollection2.remove({d: {$in: docIds}}, function(err, res){
+            if (err) {
+              console.log('Ops2 - error', err);
+              return cb()
+            }
+
             counter += res.result.n;
             cb()
           });
         }, function(cb){
           oplogsCollection3.remove({d: {$in: docIds}}, function(err, res){
+            if (err) {
+              console.log('Ops3 - error', err);
+              return cb()
+            }
+
             counter += res.result.n;
             cb()
           });
