@@ -27,35 +27,44 @@ module.exports = function(url, date, collections, callback) {
     var oplogsCollection1 = db.collection(oplogsCollectionName1);
     var oplogsCollection2 = db.collection(oplogsCollectionName2);
 
-    snapshotsCollection.find({'_m.ctime': { $lt: date }}).toArray(function (err, snapshots) {
-      if (err) throw err;
+    var counter = 0;
+    async.forever(function(next){
 
-      snapshots = snapshots || [];
-      var docIds = _.pluck(snapshots, '_id');
+      snapshotsCollection.find({'_m.ctime': { $lt: date }}).project({_id:1}).limit(1000).toArray(function (err, snapshots) {
+        if (err) throw err;
 
-      var counter = 0;
+        snapshots = snapshots || [];
+        var docIds = _.pluck(snapshots, '_id');
 
-      async.parallel([function(cb){
-        snapshotsCollection.remove({_id: {$in: docIds}}, function(err, res){
-          counter += res.result.n;
-          cb()
+        if (docIds.length === 0) {
+          return next('done');
+        }
+
+        async.parallel([function(cb){
+          snapshotsCollection.remove({_id: {$in: docIds}}, function(err, res){
+            counter += res.result.n;
+            cb()
+          });
+        }, function(cb){
+          oplogsCollection1.remove({name: {$in: docIds}}, function(err, res){
+            counter += res.result.n;
+            cb()
+          });
+        }, function(cb){
+          oplogsCollection2.remove({d: {$in: docIds}}, function(err, res){
+            counter += res.result.n;
+            cb()
+          });
+        }], function(){
+          if (!callback) console.log(snapshotsCollectionName, counter);
+          next();
         });
-      }, function(cb){
-        oplogsCollection1.remove({name: {$in: docIds}}, function(err, res){
-          counter += res.result.n;
-          cb()
-        });
-      }, function(cb){
-        oplogsCollection2.remove({d: {$in: docIds}}, function(err, res){
-          counter += res.result.n;
-          cb()
-        });
-      }], function(){
-        if (!callback) console.log(snapshotsCollectionName, counter);
-        resultes[snapshotsCollectionName] = counter;
-        done();
+
       });
 
+    }, function(err){
+      resultes[snapshotsCollectionName] = counter;
+      done()
     });
   }
 
