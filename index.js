@@ -1,15 +1,19 @@
 var _ = require('lodash');
 var mongo = require('mongodb');
 var async = require('async');
+var {parse} = require('url');
 
 module.exports = function(url, date, collections, callback) {
   var resultes = {};
+  var parsedUrl = parse(url)
+  var dbName = parsedUrl.pathname.slice(1)
 
-  mongo.MongoClient.connect(url, function (err, db) {
+  mongo.MongoClient.connect(url, { useNewUrlParser: true }, function (err, client) {
+    var db = client.db(dbName)
     if (err) throw err;
 
     async.eachSeries(collections, cleanCollection.bind(null, db), function () {
-      db.close();
+      client.close();
       if (callback) {
         callback(null, resultes);
       } else {
